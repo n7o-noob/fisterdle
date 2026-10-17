@@ -297,9 +297,14 @@ function record(){if(mode!=='daily')return;const k='stats:'+catKey,s=store.get(k
   s.played++;s.total+=game.guesses.length;s.streak=s.last===game.day-1?s.streak+1:1;s.last=game.day;store.set(k,s);}
 function renderStats(){const C=cat(),s=store.get('stats:'+catKey,{played:0,total:0,streak:0});
   $('stats').innerHTML='<div class="sunken">Daily '+C.nouns+' solved: '+s.played+'</div><div class="sunken">Avg guesses: '+(s.played?(s.total/s.played).toFixed(1):'–')+'</div><div class="sunken">Streak: '+s.streak+'</div><div class="sunken">'+C.items.length.toLocaleString()+' '+C.nouns+'</div>';}
+const PLAY_URL='https://n7o-noob.github.io/fisterdle/';
 function shareText(){const C=cat(),a=answer(),em={hit:'🟩',near:'🟧',miss:'🟥'};
   const rows=game.guesses.map(gid=>C.compare(C.items[gid],a).map(x=>em[x.s]).join(''));
-  const hn=game.hints||0;return 'Fisterdle '+(catKey==='maps'?'Maps ':'')+(mode==='daily'?'#'+game.day:'Endless')+' · '+plural(game.guesses.length,'guess','guesses')+' · '+(hn?plural(hn,'hint'):'no hints')+'\n'+(rows.length>8?rows.slice(0,7).join('\n')+'\n…\n'+rows[rows.length-1]:rows.join('\n'));}
+  const n=game.guesses.length,hn=game.hints||0;
+  // Daily results never name the answer, so sharing can't spoil it.
+  const title='**Fisterdle'+(catKey==='maps'?' Maps':'')+(mode==='daily'?' #'+game.day+'**':' (Endless) — *'+a.name+'***');
+  const board=rows.length>10?rows.slice(0,9).join('\n')+'\n…\n'+rows[rows.length-1]:rows.join('\n');
+  return title+'\n🏆 **Stats:**\n• '+plural(n,'Guess','Guesses')+'\n• '+(hn?plural(hn,'Hint'):'No hints')+'\n\n🧩 **Board:**\n'+board+'\n\n👉 **Play Fisterdle at:** '+PLAY_URL;}
 function renderResult(){const r=$('result');if(!game.done){r.hidden=true;return;}r.hidden=false;r.replaceChildren();const C=cat(),a=answer();
   const p=document.createElement('p');p.className='status';
   p.textContent=game.skipped?'Skipped. The answer was':'Solved in '+plural(game.guesses.length,'guess','guesses')+((game.hints||0)?' with '+plural(game.hints,'hint'):' with no hints');
@@ -309,7 +314,7 @@ function renderResult(){const r=$('result');if(!game.done){r.hidden=true;return;
   const next=document.createElement('button');next.className='btn';
   if(mode==='endless'){next.textContent='Next '+C.noun;next.onclick=()=>{store.set(slot(),null);newGame();};}else{next.textContent='Play endless';next.onclick=()=>newGame(null,'endless');}
   const parts=[];
-  if(!game.skipped){const ta=document.createElement('textarea');ta.className='share-text sunken';ta.id='share-text';ta.readOnly=true;ta.rows=Math.min(10,game.guesses.length+1);ta.value=shareText();ta.setAttribute('aria-label','Result to share');
+  if(!game.skipped){const ta=document.createElement('textarea');ta.className='share-text sunken';ta.id='share-text';ta.readOnly=true;ta.value=shareText();ta.rows=Math.min(16,ta.value.split('\n').length);ta.setAttribute('aria-label','Result to share');
     const copy=document.createElement('button');copy.className='btn';copy.textContent='Copy result';
     copy.onclick=()=>{try{navigator.clipboard.writeText(ta.value).then(()=>toast('Copied'),()=>{ta.select();toast('Press Ctrl+C to copy');});}catch{ta.select();toast('Press Ctrl+C to copy');}};
     btns.append(copy);parts.push(ta);}
