@@ -19,3 +19,5 @@ The **Hint** button reveals the first letter, then the name length, then the fir
 The cosmetic list is built into `index.html` (the `DATA` array). Each entry is `[name, type, rarity, creator, canBeAnswer, picture]`. Maps are in the `MAPS` array: `[name, creator, origin, gameModes, picture]`.
 
 Fan-made; not affiliated with the Fister developers.
+
+Page link: https://n7o-noob.github.io/fisterdle/
