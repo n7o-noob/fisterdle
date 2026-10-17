@@ -299,12 +299,13 @@ function renderStats(){const C=cat(),s=store.get('stats:'+catKey,{played:0,total
   $('stats').innerHTML='<div class="sunken">Daily '+C.nouns+' solved: '+s.played+'</div><div class="sunken">Avg guesses: '+(s.played?(s.total/s.played).toFixed(1):'–')+'</div><div class="sunken">Streak: '+s.streak+'</div><div class="sunken">'+C.items.length.toLocaleString()+' '+C.nouns+'</div>';}
 const PLAY_URL='https://n7o-noob.github.io/fisterdle/';
 function shareText(){const C=cat(),a=answer(),em={hit:'🟩',near:'🟧',miss:'🟥'};
-  const rows=game.guesses.map(gid=>C.compare(C.items[gid],a).map(x=>em[x.s]).join(''));
-  const n=game.guesses.length,hn=game.hints||0;
+  const rows=game.guesses.map(gid=>C.compare(C.items[gid],a).map(x=>em[x.s]).join(' '));
+  const n=game.guesses.length,hn=game.hints||0,name='Fisterdle'+(catKey==='maps'?' Maps':'');
   // Daily results never name the answer, so sharing can't spoil it.
-  const title='**Fisterdle'+(catKey==='maps'?' Maps':'')+(mode==='daily'?' #'+game.day+'**':' (Endless) — *'+a.name+'***');
-  const board=rows.length>10?rows.slice(0,9).join('\n')+'\n…\n'+rows[rows.length-1]:rows.join('\n');
-  return title+'\n🏆 **Stats:**\n• '+plural(n,'Guess','Guesses')+'\n• '+(hn?plural(hn,'Hint'):'No hints')+'\n\n🧩 **Board:**\n'+board+'\n\n👉 **Play Fisterdle at:** '+PLAY_URL;}
+  const title=mode==='daily'?'### **'+name+' #'+game.day+'**':'### **'+name+' (Endless)** — *'+a.name+'*';
+  const board=rows.length>10?[...rows.slice(0,9),'…',rows[rows.length-1]]:rows;
+  return [title,'','**🏆 Stats:**','• '+plural(n,'Guess','Guesses'),'• '+(hn?plural(hn,'Hint'):'No hints'),'','**🧩 Board:**',...board,'',
+   '👉 **Play Fisterdle at:** '+PLAY_URL].map(l=>l?'> '+l:'> ').join('\n');}
 function renderResult(){const r=$('result');if(!game.done){r.hidden=true;return;}r.hidden=false;r.replaceChildren();const C=cat(),a=answer();
   const p=document.createElement('p');p.className='status';
   p.textContent=game.skipped?'Skipped. The answer was':'Solved in '+plural(game.guesses.length,'guess','guesses')+((game.hints||0)?' with '+plural(game.hints,'hint'):' with no hints');
